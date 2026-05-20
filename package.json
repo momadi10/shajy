@@ -1,0 +1,17 @@
+{
+  "name": "assessment-marks-portal",
+  "private": true,
+  "description": "Static marks portal — exceljs is only for local Excel conversion",
+  "scripts": {
+    "convert": "node convert-excel.js marks.xlsx data.json",
+    "convert:csv": "node convert-csv.js marks.csv data.json"
+  },
+  "devDependencies": {
+    "exceljs": "^4.4.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
+    "dotenv": "^17.4.2",
+    "xlsx": "^0.18.5"
+  }
+}

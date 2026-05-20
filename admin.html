@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.svg">
+  <meta name="theme-color" content="#0f2744">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — CA Portal</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- ── Prevent flash of wrong theme ──────────────────────────
+       Runs before first paint: reads the same localStorage key
+       used by index.html so both pages stay in sync.
+  ──────────────────────────────────────────────────────────── -->
+  <script>
+    (function () {
+      if (localStorage.getItem('ca-theme') === 'dark')
+        document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
+
+  <style>
+    /* ════════════════════════════════════════════════════════
+       TOKENS — LIGHT (default)
+    ════════════════════════════════════════════════════════ */
+    :root {
+      /* Brand */
+      --navy:        #0c1929;
+      --navy-mid:    #172d45;
+      --navy-light:  #1e3a5f;
+      --gold:        #c9a84c;
+      --gold-dim:    rgba(201,168,76,.14);
+      --gold-border: rgba(201,168,76,.35);
+
+      /* Surfaces */
+      --bg:          #eef1f6;
+      --card:        #ffffff;
+      --card-inner:  #f8fafd;
+
+      /* Text */
+      --text:        #0f1f35;
+      --text2:       #3d5168;
+      --text3:       #6b7f96;
+      --text4:       #9aafc4;
+
+      /* Semantic */
+      --blue:        #1a56db;
+      --blue-bg:     #eff6ff;
+      --blue-border: #bfdbfe;
+      --emerald:     #047857;
+      --emerald-bg:  #ecfdf5;
+      --rose:        #9f1239;
+      --rose-bg:     #fff1f2;
+      --rose-border: #fecdd3;
+      --amber:       #92400e;
+      --amber-bg:    #fffbeb;
+      --amber-border:#fcd34d;
+
+      /* Borders & shadows */
+      --border:      #dde3ec;
+      --shadow:      0 1px 3px rgba(15,30,60,.06), 0 8px 24px rgba(15,30,60,.09);
+
+      /* Table */
+      --thead-bg:    #f4f6fa;
+      --tbody-even:  #fafbfd;
+      --tbody-hover: #f0f6ff;
+      --tbody-border:#f0f3f8;
+
+      /* Spinner */
+      --spinner-track: #e8edf5;
+      --spinner-head:  var(--navy);
+
+      /* Toggle */
+      --toggle-bg:       rgba(255,255,255,.12);
+      --toggle-bg-hover: rgba(255,255,255,.22);
+      --toggle-border:   rgba(255,255,255,.2);
+      --toggle-color:    rgba(255,255,255,.85);
+      --icon-sun-display:  none;
+      --icon-moon-display: block;
+
+      /* Misc */
+      --r:          12px;
+      --f-sans:     -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --f-mono:     'SFMono-Regular', Consolas, monospace;
+      --transition: .18s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       TOKENS — DARK
+    ════════════════════════════════════════════════════════ */
+    [data-theme="dark"] {
+      --bg:          #07101e;
+      --card:        #1a2235;
+      --card-inner:  #0f172a;
+
+      --text:        #e2e8f0;
+      --text2:       #94a3b8;
+      --text3:       #64748b;
+      --text4:       #475569;
+
+      --blue:        #4d90e8;
+      --blue-bg:     rgba(77,144,232,.1);
+      --blue-border: rgba(77,144,232,.25);
+      --emerald:     #34d399;
+      --emerald-bg:  rgba(52,211,153,.1);
+      --rose:        #f87171;
+      --rose-bg:     rgba(248,113,113,.08);
+      --rose-border: rgba(248,113,113,.25);
+      --amber:       #fbbf24;
+      --amber-bg:    rgba(251,191,36,.08);
+      --amber-border:rgba(251,191,36,.3);
+
+      --border:      #263349;
+      --shadow:      0 1px 3px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.4);
+
+      --thead-bg:    #0d1f38;
+      --tbody-even:  #0f172a;
+      --tbody-hover: #1e2d45;
+      --tbody-border:#1e2d3e;
+
+      --spinner-track: #263349;
+      --spinner-head:  var(--gold);
+
+      --toggle-bg:       rgba(255,255,255,.08);
+      --toggle-bg-hover: rgba(255,255,255,.15);
+      --toggle-border:   rgba(255,255,255,.15);
+      --toggle-color:    rgba(255,255,255,.8);
+      --icon-sun-display:  block;
+      --icon-moon-display: none;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       THEME TRANSITION — only after first paint
+    ════════════════════════════════════════════════════════ */
+    html.theme-ready,
+    html.theme-ready *,
+    html.theme-ready *::before,
+    html.theme-ready *::after {
+      transition:
+        background-color .3s cubic-bezier(.4,0,.2,1),
+        border-color     .3s cubic-bezier(.4,0,.2,1),
+        color            .3s cubic-bezier(.4,0,.2,1),
+        box-shadow       .3s cubic-bezier(.4,0,.2,1) !important;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       RESET & BASE
+    ════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; }
+
+    body {
+      font-family: var(--f-sans);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       SITE HEADER
+    ════════════════════════════════════════════════════════ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--navy);
+      padding: 0 1.5rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .site-header::after {
+      content: '';
+      position: absolute;
+      top: 56px; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      pointer-events: none;
+    }
+
+    .header-brand { display: flex; align-items: center; gap: .65rem; }
+    .header-brand span {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #e8edf5;
+      letter-spacing: .01em;
+    }
+
+    .header-badge {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      color: var(--gold);
+      border: 1px solid var(--gold-border);
+      background: var(--gold-dim);
+      padding: .2rem .6rem;
+      border-radius: 99px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    /* Shared: btn-text visible, btn-icon hidden on desktop */
+    .btn-text { display: inline; }
+    .btn-icon { display: none; }
+
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .75rem;
+      color: rgba(255,255,255,.5);
+      text-decoration: none;
+      transition: color var(--transition);
+    }
+    .header-link:hover { color: rgba(255,255,255,.85); }
+
+    #logout-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .35rem;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.7);
+      padding: .3rem .85rem;
+      border-radius: 8px;
+      font-size: .78rem;
+      font-weight: 600;
+      font-family: var(--f-sans);
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+    #logout-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+    /* ── Theme toggle ── */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--toggle-border);
+      background: var(--toggle-bg);
+      color: var(--toggle-color);
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition: background var(--transition), transform .15s;
+    }
+    .theme-toggle:hover  { background: var(--toggle-bg-hover); transform: scale(1.06); }
+    .theme-toggle:active { transform: scale(0.95); }
+    .theme-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .theme-toggle svg { width: 16px; height: 16px; }
+
+    .icon-sun  { display: var(--icon-sun-display);  }
+    .icon-moon { display: var(--icon-moon-display); }
+
+    /* ════════════════════════════════════════════════════════
+       PAGE WRAPPER
+    ════════════════════════════════════════════════════════ */
+    .page-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 3rem;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       LOGIN SCREEN
+    ════════════════════════════════════════════════════════ */
+    #login-screen {
+      min-height: calc(100vh - 56px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+
+    .login-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: var(--navy);
+      color: var(--gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.1rem;
+    }
+
+    .login-card h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .3rem;
+    }
+    .login-card > p {
+      font-size: .82rem;
+      color: var(--text3);
+      margin-bottom: 1.5rem;
+    }
+
+    .field-label {
+      display: block;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .05em;
+      color: var(--text2);
+      text-align: left;
+      margin-bottom: .35rem;
+    }
+
+    .field-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 .9rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: var(--f-sans);
+      font-size: .9rem;
+      color: var(--text);
+      background: var(--card);
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      margin-bottom: 1rem;
+    }
+    .field-input::placeholder { color: var(--text3); }
+    .field-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-bg);
+    }
+    .field-input.invalid { border-color: var(--rose); }
+
+    .btn-primary {
+      width: 100%;
+      height: 42px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--f-sans);
+      font-size: .88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+      box-shadow: 0 2px 8px rgba(12,25,41,.22);
+    }
+    .btn-primary:hover  { background: var(--navy-light); transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .login-error {
+      margin-top: .75rem;
+      font-size: .78rem;
+      color: var(--rose);
+      min-height: 1.2em;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       DASHBOARD
+    ════════════════════════════════════════════════════════ */
+    #dashboard { display: none; }
+    #dashboard.visible { display: block; }
+
+    .dash-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .35rem;
+    }
+    .page-sub {
+      font-size: .82rem;
+      color: var(--text3);
+    }
+    .last-updated-wrap {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .75rem;
+      color: var(--text3);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .35rem .75rem;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+    .last-updated-wrap[hidden] { display: none !important; }
+    .last-updated-wrap strong { color: var(--text2); }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: .75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 1rem 1.1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-label {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: .3rem;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+    .stat-value.green { color: var(--emerald); }
+    .stat-value.amber { color: var(--amber); }
+    .stat-value.blue  { color: var(--blue); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: .4rem; margin-bottom: 1rem; flex-wrap: wrap; }
+
+    .tab-btn {
+      padding: .45rem 1rem;
+      border-radius: 99px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-family: var(--f-sans);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text2);
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition),
+                  background var(--transition);
+    }
+    .tab-btn:hover { border-color: var(--navy); color: var(--navy); }
+    [data-theme="dark"] .tab-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .tab-btn.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+    /* Panel */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Data card */
+    .data-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .data-card-head {
+      padding: 1rem 1.25rem .75rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--card-inner);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+
+    .data-card-title { font-size: .82rem; font-weight: 700; color: var(--text); }
+    .data-card-sub   { font-size: .72rem; color: var(--text3); margin-top: 1px; }
+
+    /* Inline search */
+    .inline-search {
+      height: 34px;
+      padding: 0 .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--f-sans);
+      font-size: .8rem;
+      color: var(--text);
+      background: var(--card);
+      outline: none;
+      min-width: 180px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .inline-search::placeholder { color: var(--text3); }
+    .inline-search:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px var(--blue-bg);
+    }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+
+    thead tr {
+      background: var(--thead-bg);
+      border-bottom: 2px solid var(--border);
+    }
+
+    thead th {
+      padding: .65rem 1rem;
+      text-align: left;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--text3);
+      white-space: nowrap;
+    }
+    thead th.center, tbody td.center { text-align: center; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--tbody-border);
+      transition: background var(--transition);
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:nth-child(even) { background: var(--tbody-even); }
+    tbody tr:hover           { background: var(--tbody-hover); }
+
+    tbody td {
+      padding: .7rem 1rem;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .id-mono {
+      font-family: var(--f-mono);
+      font-size: .78rem;
+      color: var(--text2);
+    }
+    .ts-cell {
+      font-family: var(--f-mono);
+      font-size: .73rem;
+      color: var(--text3);
+      white-space: nowrap;
+    }
+
+    .count-badge {
+      display: inline-block;
+      min-width: 28px;
+      text-align: center;
+      padding: .15rem .5rem;
+      border-radius: 99px;
+      font-size: .75rem;
+      font-weight: 700;
+      background: var(--blue-bg);
+      color: var(--blue);
+      border: 1px solid var(--blue-border);
+    }
+
+    .not-checked-tag {
+      display: inline-block;
+      padding: .15rem .55rem;
+      border-radius: 99px;
+      font-size: .72rem;
+      font-weight: 700;
+      background: var(--rose-bg);
+      color: var(--rose);
+      border: 1px solid var(--rose-border);
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 3rem 2rem;
+      text-align: center;
+      color: var(--text3);
+      font-size: .85rem;
+    }
+    .empty-state svg { display: block; margin: 0 auto .75rem; opacity: .35; }
+
+    /* Spinner */
+    .spinner-wrap { padding: 2rem; text-align: center; }
+    .spinner {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 3px solid var(--spinner-track);
+      border-top-color: var(--spinner-head);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Date range inputs */
+    .date-input {
+      height: 34px;
+      padding: 0 .6rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--f-sans);
+      font-size: .76rem;
+      color: var(--text);
+      background: var(--card);
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--transition);
+    }
+    .date-input:focus { border-color: var(--blue); }
+    .date-input::-webkit-calendar-picker-indicator {
+      opacity: .5;
+      cursor: pointer;
+    }
+
+    /* CSV download button */
+    .csv-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .3rem .75rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--emerald-bg);
+      background: var(--emerald-bg);
+      font-family: var(--f-sans);
+      font-size: .76rem;
+      font-weight: 700;
+      color: var(--emerald);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition);
+    }
+    .csv-btn:hover {
+      border-color: var(--emerald);
+      background: rgba(4,120,87,.12);
+    }
+    [data-theme="dark"] .csv-btn {
+      background: rgba(52,211,153,.08);
+      border-color: rgba(52,211,153,.2);
+    }
+    [data-theme="dark"] .csv-btn:hover {
+      background: rgba(52,211,153,.15);
+      border-color: var(--emerald);
+    }
+
+    /* Refresh button */
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .3rem .75rem;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-family: var(--f-sans);
+      font-size: .76rem;
+      font-weight: 600;
+      color: var(--text2);
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition),
+                  background var(--transition);
+    }
+    .refresh-btn:hover { border-color: var(--navy); color: var(--navy); }
+    [data-theme="dark"] .refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .refresh-btn svg { transition: transform .4s; }
+    .refresh-btn.spinning svg { animation: spin .7s linear infinite; }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      padding: .85rem 1rem;
+      border-top: 1px solid var(--border);
+      font-size: .78rem;
+      color: var(--text3);
+      background: var(--card-inner);
+    }
+
+    .page-btn {
+      padding: .25rem .65rem;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-family: var(--f-sans);
+      font-size: .76rem;
+      font-weight: 600;
+      color: var(--text2);
+      cursor: pointer;
+      transition: border-color var(--transition), color var(--transition),
+                  background var(--transition);
+    }
+    .page-btn:hover:not(:disabled) { border-color: var(--navy); color: var(--navy); }
+    [data-theme="dark"] .page-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+    .page-btn:disabled { opacity: .4; cursor: default; }
+
+    /* Error banner */
+    .error-banner {
+      padding: .75rem 1rem;
+      background: var(--rose-bg);
+      border-left: 3px solid var(--rose);
+      font-size: .8rem;
+      color: var(--rose);
+      display: none;
+    }
+    .error-banner.visible { display: block; }
+
+    /* Config warning */
+    .config-warning {
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      font-size: .8rem;
+      color: var(--amber);
+      margin-bottom: 1.25rem;
+      display: none;
+    }
+    .config-warning.visible { display: flex; align-items: center; gap: .5rem; }
+    .config-warning code {
+      font-family: var(--f-mono);
+      font-size: .78rem;
+      background: var(--amber-bg);
+      padding: 0 .3rem;
+      border-radius: 4px;
+    }
+
+    /* Responsive */
+    /* ── Class report progress bar ── */
+    .class-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      min-width: 120px;
+    }
+    .class-bar-track {
+      flex: 1;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+      min-width: 60px;
+    }
+    .class-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--blue), #60a5fa);
+      transition: width .7s cubic-bezier(.4,0,.2,1);
+      width: 0%;
+    }
+    .class-bar-pct {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--text3);
+      white-space: nowrap;
+      min-width: 2.5rem;
+      text-align: right;
+    }
+    .class-name-cell {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+    }
+    .class-rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-size: .68rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .class-rank--1 { background: rgba(251,191,36,.18); color: #d97706; }
+    .class-rank--2 { background: rgba(148,163,184,.13); color: var(--text3); }
+    .class-rank--3 { background: rgba(180,120,80,.13);  color: #b45309; }
+    .class-rank--n { background: var(--border); color: var(--text3); }
+    .checked-count  { font-weight: 700; color: var(--emerald); }
+    .missing-count  { font-weight: 700; color: var(--rose); }
+    .total-count    { font-weight: 600; color: var(--text2); }
+
+    /* ── Class report summary row (inside tbody — inherits all td styles) ── */
+    .class-summary-footer {
+      border-top: 2px solid var(--border) !important;
+      background: var(--tbody-even) !important;
+    }
+    .footer-all-label {
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text3);
+    }
+
+    @media (max-width: 600px) {
+      .page-wrapper  { padding: 1.25rem .75rem 2.5rem; }
+      .page-title    { font-size: 1.2rem; }
+      .stats-row     { grid-template-columns: repeat(2, 1fr); }
+      .inline-search { min-width: 120px; }
+
+      /* Icon-only mode for back + logout on mobile */
+      .btn-text { display: none; }
+      .btn-icon { display: block; }
+
+      /* Make both buttons square icon buttons */
+      .header-link,
+      #logout-btn {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border-radius: 8px;
+        justify-content: center;
+        border: 1px solid rgba(255,255,255,.15);
+        background: rgba(255,255,255,.06);
+        color: rgba(255,255,255,.7);
+      }
+      .header-link:hover,
+      #logout-btn:hover {
+        background: rgba(255,255,255,.13);
+        color: #fff;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Site Header ───────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+         stroke="#c9a84c" stroke-width="2" stroke-linecap="round"
+         stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+      <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+    </svg>
+    <span>Admin Dashboard</span>
+  </div>
+
+  <div class="header-right">
+    <!-- Back to portal — text on desktop, arrow icon on mobile -->
+    <a href="index.html" class="header-link" title="Back to Portal" aria-label="Back to Portal">
+      <span class="btn-text">← Portal</span>
+      <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+    </a>
+
+    <!-- Dark / Light mode toggle -->
+    <button
+      class="theme-toggle"
+      id="theme-toggle"
+      aria-label="Switch to dark mode"
+      title="Switch to dark mode"
+    >
+      <!-- Sun: shown in dark mode -->
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1"  x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1"  y1="12" x2="3"  y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+        <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+      </svg>
+      <!-- Moon: shown in light mode -->
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+      </svg>
+    </button>
+
+    <!-- Logout — text on desktop, power icon on mobile -->
+    <button id="logout-btn" title="Log out" aria-label="Log out">
+      <span class="btn-text">Log out</span>
+      <svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- ── Login Screen ──────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-icon" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4"/>
+      </svg>
+    </div>
+    <h1>Admin Access</h1>
+    <p>Enter your admin password to view the access log dashboard.</p>
+
+    <label class="field-label" for="admin-pw">Password</label>
+    <input
+      type="password"
+      id="admin-pw"
+      class="field-input"
+      placeholder="Admin password"
+      autocomplete="current-password"
+    />
+    <button class="btn-primary" id="login-btn">Sign in</button>
+    <p class="login-error" id="login-error" aria-live="polite"></p>
+  </div>
+</div>
+
+<!-- ── Dashboard ─────────────────────────────────────────────── -->
+<div id="dashboard">
+  <div class="page-wrapper">
+
+    <div class="config-warning" id="config-warn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <span>Supabase is not configured — edit <code>config.js</code> to enable live logging.</span>
+    </div>
+
+    <div class="dash-title-row">
+      <div>
+        <h1 class="page-title">Access Log Dashboard</h1>
+        <p class="page-sub">Every time a student successfully looks up their marks, a record is logged here.</p>
+      </div>
+      <div class="last-updated-wrap" id="last-updated-wrap" hidden>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span>Marks last updated: <strong id="last-updated-val">—</strong></span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Lookups</div>
+        <div class="stat-value blue" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique Students</div>
+        <div class="stat-value green" id="stat-unique">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Never Checked</div>
+        <div class="stat-value amber" id="stat-unchecked">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-value" id="stat-roster">—</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist" aria-label="Dashboard views">
+      <button class="tab-btn active" role="tab" data-panel="log"      aria-selected="true" >📋 Live Log</button>
+      <button class="tab-btn"        role="tab" data-panel="classes"  aria-selected="false">🏫 By Class</button>
+      <button class="tab-btn"        role="tab" data-panel="checked"  aria-selected="false">✅ Checked</button>
+      <button class="tab-btn"        role="tab" data-panel="missing"  aria-selected="false">❌ Not Checked</button>
+    </div>
+
+    <!-- Panel: Live Log -->
+    <div class="panel active" id="panel-log" role="tabpanel">
+      <div class="data-card">
+        <div class="data-card-head">
+          <div>
+            <div class="data-card-title">Access Log</div>
+            <div class="data-card-sub">All student lookups, newest first</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+            <input class="inline-search" id="log-search" type="search" placeholder="Filter by ID or name…" />
+            <button class="csv-btn" id="csv-log-btn" title="Download CSV">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              CSV
+            </button>
+            <input type="date" class="date-input" id="date-from" title="From date" aria-label="From date" />
+            <span style="font-size:.72rem;color:var(--text3)">to</span>
+            <input type="date" class="date-input" id="date-to" title="To date" aria-label="To date" />
+            <button class="refresh-btn" id="refresh-log-btn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M23 4v6h-6M1 20v-6h6"/>
+                <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+        <div class="error-banner" id="log-error"></div>
+        <div id="log-table-wrap" class="table-wrap">
+          <div class="spinner-wrap"><div class="spinner"></div></div>
+        </div>
+        <div class="pagination" id="log-pagination" style="display:none">
+          <button class="page-btn" id="log-prev">← Prev</button>
+          <span id="log-page-label">Page 1</span>
+          <button class="page-btn" id="log-next">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: By Class -->
+    <div class="panel" id="panel-classes" role="tabpanel">
+      <div class="data-card">
+        <div class="data-card-head">
+          <div>
+            <div class="data-card-title">Class Summary Report</div>
+            <div class="data-card-sub">Checked vs not checked per class · sorted by most checked</div>
+          </div>
+          <button class="csv-btn" id="csv-classes-btn" title="Download CSV">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            CSV
+          </button>
+        </div>
+        <div id="classes-table-wrap" class="table-wrap">
+          <div class="spinner-wrap"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Checked -->
+    <div class="panel" id="panel-checked" role="tabpanel">
+      <div class="data-card">
+        <div class="data-card-head">
+          <div>
+            <div class="data-card-title">Students Who Checked</div>
+            <div class="data-card-sub">Unique students sorted by most lookups</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+            <input class="inline-search" id="checked-search" type="search" placeholder="Filter by ID or name…" />
+            <button class="csv-btn" id="csv-checked-btn" title="Download CSV">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              CSV
+            </button>
+          </div>
+        </div>
+        <div class="error-banner" id="checked-error"></div>
+        <div id="checked-table-wrap" class="table-wrap">
+          <div class="spinner-wrap"><div class="spinner"></div></div>
+        </div>
+        <div class="pagination" id="checked-pagination" style="display:none">
+          <button class="page-btn" id="checked-prev">← Prev</button>
+          <span id="checked-page-label">Page 1</span>
+          <button class="page-btn" id="checked-next">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel: Not Checked -->
+    <div class="panel" id="panel-missing" role="tabpanel">
+      <div class="data-card">
+        <div class="data-card-head">
+          <div>
+            <div class="data-card-title">Students Who Have NOT Checked</div>
+            <div class="data-card-sub">Cross-referenced against Supabase roster</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+            <input class="inline-search" id="missing-search" type="search" placeholder="Filter by ID or name…" />
+            <button class="csv-btn" id="csv-missing-btn" title="Download CSV">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              CSV
+            </button>
+          </div>
+        </div>
+        <div id="missing-table-wrap" class="table-wrap">
+          <div class="spinner-wrap"><div class="spinner"></div></div>
+        </div>
+        <div class="pagination" id="missing-pagination" style="display:none">
+          <button class="page-btn" id="missing-prev">← Prev</button>
+          <span id="missing-page-label">Page 1</span>
+          <button class="page-btn" id="missing-next">Next →</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.page-wrapper -->
+</div><!-- /#dashboard -->
+
+<!-- ── Theme toggle logic ────────────────────────────────────── -->
+<script>
+  (function () {
+    var btn  = document.getElementById('theme-toggle');
+    var html = document.documentElement;
+
+    function applyTheme(dark) {
+      if (dark) {
+        html.setAttribute('data-theme', 'dark');
+        btn.setAttribute('aria-label', 'Switch to light mode');
+        btn.title = 'Switch to light mode';
+      } else {
+        html.removeAttribute('data-theme');
+        btn.setAttribute('aria-label', 'Switch to dark mode');
+        btn.title = 'Switch to dark mode';
+      }
+      localStorage.setItem('ca-theme', dark ? 'dark' : 'light');
+    }
+
+    /* Enable smooth transitions only after first paint */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        html.classList.add('theme-ready');
+      });
+    });
+
+    btn.addEventListener('click', function () {
+      applyTheme(html.getAttribute('data-theme') !== 'dark');
+    });
+
+    /* Sync aria-label with current saved state */
+    applyTheme(html.getAttribute('data-theme') === 'dark');
+  })();
+</script>
+
+<!-- Supabase + config + admin logic -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

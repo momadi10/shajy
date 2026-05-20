@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="favicon.svg">
+  <meta name="theme-color" content="#0f2744">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1628">
+  <meta name="description" content="View your continuous assessment marks by student ID">
+  <title>Continuous Assessment Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Prevent flash of wrong theme: apply saved theme before first paint -->
+  <script>
+    (function(){
+      var t = localStorage.getItem('ca-theme');
+      if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+    })();
+  </script>
+</head>
+<body>
+  <div class="bg-pattern" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow--left" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow--right" aria-hidden="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       NAVBAR — sticky, full-bleed, outside scroll container
+  ══════════════════════════════════════════════════════════ -->
+  <header class="navbar" role="banner" id="page-title">
+    <div class="navbar__inner">
+
+      <!-- Left: logo + wordmark -->
+      <div class="navbar__brand">
+        <div class="navbar__emblem" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/>
+            <path d="M6 12v5c3.33 1.67 8.67 1.67 12 0v-5"/>
+          </svg>
+        </div>
+        <span class="navbar__wordmark">CA Portal</span>
+      </div>
+
+      <!-- Centre: title pill -->
+      <div class="navbar__centre" aria-hidden="true">
+        <span class="navbar__title-pill">
+          Continuous Assessment
+        </span>
+      </div>
+
+      <!-- Right: badge + toggle -->
+      <div class="navbar__controls">
+        <span class="navbar__session-badge">
+          <span class="navbar__session-dot" aria-hidden="true"></span>
+          2024 – 25
+        </span>
+        <button
+          class="theme-toggle"
+          id="theme-toggle"
+          aria-label="Switch to dark mode"
+          title="Toggle dark mode"
+        >
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1"  x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22"   x2="5.64"  y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1"  y1="12" x2="3"  y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+            <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+    <!-- Gold accent line -->
+    <div class="navbar__accent" aria-hidden="true"></div>
+  </header>
+
+  <main class="page">
+
+    <div class="layout">
+      <article class="card card--search" aria-labelledby="search-heading">
+        <div class="card__head">
+          <span class="card__step" aria-hidden="true">01</span>
+          <div>
+            <h2 id="search-heading" class="card__title">Student lookup</h2>
+            <p class="card__desc">Enter your registered student ID to get your marks.</p>
+          </div>
+        </div>
+
+        <form id="search-form" class="search" novalidate>
+          <label for="student-id" class="search__label">Student ID number</label>
+          <div class="search__field">
+            <span class="search__prefix" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2.5c-3.3 0-10 1.7-10 5v2.5h20V20c0-3.3-6.7-5-10-5z"/></svg>
+            </span>
+            <input
+              type="text"
+              id="student-id"
+              name="studentId"
+              class="search__input"
+              placeholder="e.g. 12345"
+              autocomplete="off"
+              spellcheck="false"
+              required
+              aria-describedby="search-hint status-message"
+            >
+            <button type="submit" class="search__button" id="search-btn">
+              <span>Search records</span>
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            </button>
+          </div>
+          <p id="search-hint" class="search__hint">Press <kbd>Enter</kbd> to search </p>
+          <!-- Recent searches — injected by script.js -->
+          <div id="recent-searches" class="recent-searches" aria-label="Recent searches" hidden></div>
+        </form>
+
+        <div id="status" class="alert" role="alert" aria-live="assertive" hidden>
+          <span class="alert__icon" aria-hidden="true">
+            <svg class="alert__svg alert__svg--error" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <svg class="alert__svg alert__svg--empty" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 12a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2"/>
+              <path d="M6 20v-1a4 4 0 014-4h4a4 4 0 014 4v1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <svg class="alert__svg alert__svg--loading" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" stroke-opacity="0.25"/>
+              <path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/>
+              </path>
+            </svg>
+          </span>
+          <p id="status-message" class="alert__message"></p>
+        </div>
+      </article>
+
+      <article id="results" class="card card--results" hidden aria-labelledby="results-heading">
+        <div class="card__head card__head--results">
+          <span class="card__step card__step--gold" aria-hidden="true">02</span>
+          <div>
+            <h2 id="results-heading" class="card__title">Assessment record</h2>
+            <p class="card__desc">Continuous assessment breakdown for the current term.</p>
+          </div>
+        </div>
+
+        <div class="record">
+          <div class="record__student">
+            <div class="record__avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2.5c-3.3 0-10 1.7-10 5v2.5h20V20c0-3.3-6.7-5-10-5z"/></svg>
+            </div>
+            <div class="record__details">
+              <p class="record__label">Registered student</p>
+              <p class="record__name" id="result-name"></p>
+              <p class="record__id">Student ID: <strong id="result-id"></strong></p>
+            </div>
+            <span class="record__status" id="result-badge">Record found</span>
+          </div>
+
+          <div class="table-panel">
+            <p class="table-panel__label">Mark sheet</p>
+            <div class="table-wrap">
+              <table class="marks-table marks-table--vertical">
+                <caption class="visually-hidden">Continuous assessment marks by component</caption>
+                <thead>
+                  <tr>
+                    <th scope="col" class="marks-table__col-component">Component</th>
+                    <th scope="col" class="marks-table__col-marks">Marks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" class="marks-table__component">Attendance (10%)</th>
+                    <td id="mark-attendance" class="marks-table__score"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="marks-table__component" id="label-activities">Activities (5%)</th>
+                    <td id="mark-activities" class="marks-table__score"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="marks-table__component">Midterm (20%)</th>
+                    <td id="mark-midterm" class="marks-table__score"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="marks-table__component" id="label-project">Project (25%)</th>
+                    <td id="mark-project" class="marks-table__score"></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="marks-table__component">Bonus</th>
+                    <td id="mark-bonus" class="marks-table__score"></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="marks-table__total-row">
+                    <th scope="row" class="marks-table__component">Total (60%)</th>
+                    <td id="mark-total" class="marks-table__score marks-table__score--total"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <!-- Print / Save as PDF -->
+          <div class="results-actions">
+            <button class="print-btn" onclick="window.print()" aria-label="Print or save as PDF">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Print / Save as PDF
+            </button>
+          </div>
+
+        </div>
+      </article>
+    </div>
+
+    <footer class="site-footer">
+      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+      <p>Secure local lookup · <a href="admin.html" style="color:inherit;opacity:.45;font-size:.75rem;">Admin</a></p>
+    </footer>
+  </main>
+
+  <!-- Theme toggle logic -->
+  <script>
+    (function () {
+      var btn  = document.getElementById('theme-toggle');
+      var html = document.documentElement;
+
+      function applyTheme(dark) {
+        if (dark) {
+          html.setAttribute('data-theme', 'dark');
+          btn.setAttribute('aria-label', 'Switch to light mode');
+          btn.title = 'Switch to light mode';
+        } else {
+          html.removeAttribute('data-theme');
+          btn.setAttribute('aria-label', 'Switch to dark mode');
+          btn.title = 'Switch to dark mode';
+        }
+        localStorage.setItem('ca-theme', dark ? 'dark' : 'light');
+      }
+
+      // Enable smooth transitions only after first paint
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          html.classList.add('theme-ready');
+        });
+      });
+
+      btn.addEventListener('click', function () {
+        var isDark = html.getAttribute('data-theme') === 'dark';
+        applyTheme(!isDark);
+      });
+
+      // Sync initial aria-label with saved state
+      applyTheme(html.getAttribute('data-theme') === 'dark');
+    })();
+  </script>
+
+  <!-- Supabase client (for access logging) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
